@@ -9,6 +9,14 @@
   .hover-parent-translate-y:hover .hover-child-translate-y {
     @apply transform -translate-y-full; /* Трансформация применяется при наведении */
   }
+  .header-transition {
+    transition-property: opacity, transform;
+    transition-duration: .5s;
+    transition-delay: 1s;
+  }
+  .hover-swiper-navigation {
+    cursor: url(/icons/cursorSlider.svg), default;
+  }
 }
 
 iframe {
@@ -42,6 +50,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   @apply text-cPrimary100;
+  @apply bg-cPrimaryInverse100;
   min-width: 360px;
   font-size: 1.8rem;
   font-weight: 400;

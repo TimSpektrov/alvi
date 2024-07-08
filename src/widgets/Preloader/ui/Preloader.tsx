@@ -2,56 +2,19 @@
 
 import { usePreloaderStore } from '@/shared/store/preloaderStore';
 import AnimatedText from '@/shared/ui/AnimatedText/ui/AnimatedText';
-import { cva } from 'class-variance-authority';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import CircleIcon from '/public/icons/preloader_circle.svg';
-
-const cvaRoot = cva([
-  'Preloader-cvaRoot',
-  'fixed h-full w-full',
-  'flex flex-col items-center justify-center',
-]);
-
-const cvaCircle = cva([
-  'Preloader-cvaCircle',
-  'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
-  'w-[111.9rem]',
-]);
-
-const cvaProgressWrapper = cva([
-  'Preloader-cvaProgress',
-  'absolute top-2.8 left-1/2 -translate-x-1/2',
-  'h-1.7 overflow-hidden',
-  'text-secondary text-cTextDisabled',
-]);
-const cvaAnimatedText = cva([
-  'Preloader-cvaAnimatedText',
-  'text-preloader font-sb',
-]);
-
-const cvaBottom = cva([
-  'Preloader-cvaBottom',
-  'absolute bottom-2.8 left-1/2 -translate-x-1/2',
-  'flex flex-col items-center',
-]);
-
-const cvaBottomText1 = cva([
-  'Preloader-cvaBottomText1',
-  'text-secondary text-cTextDisabled uppercase mb-0.4',
-]);
-
-const cvaBottomText2 = cva([
-  'Preloader-cvaBottomText2',
-  'text-secondary text-cTextPrimary uppercase',
-]);
-
-const cvaLine = cva([
-  'Preloader-cvaLine',
-  'absolute bottom-9.9 left-1/2 -translate-x-1/2',
-  'w-0.1 opacity-[0.12] bg-cBorderSecondary',
-  'rotate-180',
-]);
+import {
+  cvaAnimatedText,
+  cvaBottom,
+  cvaBottomText1,
+  cvaBottomText2,
+  cvaCircle,
+  cvaLine,
+  cvaProgressWrapper,
+  cvaRoot,
+} from '@/widgets/Preloader/ui/PreloaderStyles';
 
 const DURATION = 4000;
 

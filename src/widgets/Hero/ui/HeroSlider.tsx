@@ -1,62 +1,40 @@
 'use client';
-import { usePreloaderStore } from '@/shared/store/preloaderStore';
-import { cva } from 'class-variance-authority';
 import { easeInOut, motion } from 'framer-motion';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
+import { FC, useEffect, useRef, useState } from 'react';
+import { Swiper, SwiperSlide, SwiperRef, SwiperClass } from 'swiper/react';
+import {
+  cvaImageWrapper,
+  cvaRoot,
+  cvaSlide,
+  cvaHeroSliderWrapper,
+  cvaImage,
+  cvaPreloader,
+  cvaPreloaderImageWrapper,
+  cvaPreloaderImage,
+  cvaSliderHoverPrev,
+  cvaSliderHoverNext,
+} from '@/widgets/Hero/ui/HeroStyles';
 
-const cvaWrapper = cva(['HeroSlider-cvaRoot', 'pt-[24.3rem] relative']);
-
-const cvaRoot = cva(['HeroSlider-cvaRoot', '[&>.swiper-wrapper]:items-center']);
-
-const cvaPreloader = cva([
-  'HeroSlider-cvaPreloader',
-  'overflow-hidden',
-  'absolute left-1/2 top-[24.3rem] -translate-x-1/2',
-  'w-[254px] h-[304px]',
-  'z-10',
-]);
-
-const cvaPreloaderImageWrapper = cva([
-  'HeroSlider-cvaPreloaderImageWrapper',
-  'absolute w-full h-full',
-]);
-
-const cvaPreloaderImage = cva([
-  'HeroSlider-cvaPreloaderImage',
-  'relative',
-  'w-full h-full',
-]);
-
-const cvaSlide = cva([
-  'HeroSlider-cvaSlide',
-  'flex',
-  'justify-center',
-  'items-center',
-  '!max-h-[30.4rem] max-w-[40rem] !w-auto',
-  'relative',
-]);
-
-const cvaImageWrapper = cva(['HeroSlider-cvaImageWrapper', 'relative']);
-
-const cvaImage = cva([
-  'HeroSlider-cvaImage',
-  '!relative',
-  '!w-auto',
-  '!h-auto',
-]);
-
-interface HeroSliderProps {
+interface IHeroSlider {
   images: string[];
+  isComplete: boolean;
+  storeProgress: number;
+  onChange: (number: number) => void;
+  currentImage: number;
 }
-
-const HeroSlider = ({ images }: HeroSliderProps) => {
-  const isComplete = usePreloaderStore((state) => state.isComplete);
-  const storeProgress = usePreloaderStore((state) => state.storeProgress);
-  const [preloaderImage, setPreloaderImage] = useState<number>(0);
+const HeroSlider: FC<IHeroSlider> = ({
+  images,
+  isComplete,
+  currentImage,
+  storeProgress,
+  onChange,
+}) => {
+  const [preloadImage, setPreloaderImage] = useState(
+    Math.ceil(images.length / 2)
+  );
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
+  const swiperRef = useRef<SwiperRef>(null);
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setPreloaderImage((prev) => {
@@ -73,9 +51,14 @@ const HeroSlider = ({ images }: HeroSliderProps) => {
   }, []);
 
   useEffect(() => {
+    if (swiperRef.current && swiperRef.current.swiper) {
+      swiperRef.current.swiper.slideTo(currentImage); // Индексация слайдов начинается с 0
+    }
+  }, [currentImage]);
+
+  useEffect(() => {
     if (isComplete) {
-      // todo доработать, чтобы динамически устанавливалось нужное значение
-      setPreloaderImage(4);
+      setPreloaderImage(Math.ceil(images.length / 2));
       clearInterval(intervalRef.current as NodeJS.Timeout);
 
       setTimeout(() => {
@@ -84,10 +67,25 @@ const HeroSlider = ({ images }: HeroSliderProps) => {
     }
   }, [isComplete]);
 
+  const handleSlideChange = (swiper: SwiperClass) => {
+    onChange(swiper.activeIndex);
+  };
   return (
-    <div className={cvaWrapper()}>
-      {preloaderImage >= 0 ? (
-        <div className={cvaPreloader()}>
+    <div className={cvaHeroSliderWrapper()}>
+      {preloadImage >= 0 && (
+        <motion.div
+          className={cvaPreloader()}
+          variants={{
+            hidden: {
+              opacity: 0,
+              transition: { duration: 0, ease: easeInOut, delay: 1.3 },
+            },
+            visible: {
+              opacity: 1,
+            },
+          }}
+          initial="visible"
+          animate={isComplete ? 'hidden' : 'visible'}>
           {images.map((src, index) => (
             <motion.div
               className={cvaPreloaderImageWrapper()}
@@ -116,19 +114,22 @@ const HeroSlider = ({ images }: HeroSliderProps) => {
                   },
                 }}
                 initial="hidden"
-                animate={index === preloaderImage ? 'visible' : 'hidden'}>
+                animate={index === preloadImage ? 'visible' : 'hidden'}>
                 <Image src={src} alt={`#`} fill />
               </motion.div>
             </motion.div>
           ))}
-        </div>
-      ) : null}
+        </motion.div>
+      )}
       <Swiper
+        ref={swiperRef}
         spaceBetween={16}
         slidesPerView={'auto'}
         centeredSlides={true}
         initialSlide={images.length / 2}
-        className={cvaRoot()}>
+        className={cvaRoot()}
+        onSlideChange={handleSlideChange}
+        onSwiper={(swiper) => console.log(swiper)}>
         {images.map((src, index) => (
           <SwiperSlide key={index} className={cvaSlide()}>
             <motion.div
@@ -160,6 +161,8 @@ const HeroSlider = ({ images }: HeroSliderProps) => {
             </motion.div>
           </SwiperSlide>
         ))}
+        <div className={cvaSliderHoverPrev()}></div>
+        <div className={cvaSliderHoverNext()}></div>
       </Swiper>
     </div>
   );

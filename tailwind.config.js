@@ -14,6 +14,9 @@ const config = {
       ...colors,
       ...spacing,
       ...typography,
+      scale: {
+        flip: '-1',
+      },
     },
   },
 };
